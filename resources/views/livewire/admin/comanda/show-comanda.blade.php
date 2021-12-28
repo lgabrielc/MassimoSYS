@@ -8,13 +8,11 @@
         </svg>
         <span>Nuevo</span>
     </button>
-    @include('livewire.admin.user.modaleditaruser')
-    @include('livewire.admin.user.modalcrearuser')
-    <!-- This example requires Tailwind CSS v2.0+ -->
+    @include('livewire.admin.comanda.modalcrear')
     <input placeholder="Search" wire:model="search"
         class="p-2 flex-1 appearance-none rounded-r rounded-l sm:rounded-l-none border border-gray-400 border-b block pl-8 pr-8 py-2 w-full bg-white text-sm placeholder-gray-400 text-gray-700 focus:bg-white focus:placeholder-gray-600 focus:text-gray-700 focus:outline-none"
         autofocus />
-    @if (count($users))
+    @if (count($comandas))
     <div class="flex flex-col">
         <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -24,23 +22,19 @@
                             <tr>
                                 <th scope="col"
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    ID
+                                    Fecha
                                 </th>
                                 <th scope="col"
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Nombre
+                                    Descripción
                                 </th>
                                 <th scope="col"
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Email
+                                    Estado
                                 </th>
                                 <th scope="col"
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Roles
-                                </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Precio
+                                    Monto
                                 </th>
                                 <th scope="col" class="relative px-6 py-3">
                                     <span class="sr-only">Edit</span>
@@ -48,38 +42,47 @@
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($users as $onlyuser)
+                            @foreach ($comandas as $only)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">
-                                                {{$onlyuser->id}}
+                                                {{$only->fecha}}
                                             </div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900">{{$onlyuser->name}}</div>
+                                    <div class="text-sm text-gray-900">{{$only->descripcion}}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span
                                         class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        {{$onlyuser->email}}
+                                        {{$only->estado}}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{-- @foreach ($onlyuser->getRoleNames() as $name)
-                                    {{$name}}
-                                    @endforeach --}}
+                                    {{$only->monto}}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a class="btn2 btn-blue mb-1 py-2" wire:click="edit({{$onlyuser->id}})">
+                                    <a class="btn2 btn-blue mb-1 py-2" wire:click="edit({{$only->id}})">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a class="btn2 btn-red mb-1 py-2" wire:click="$emit('delethis',{{$onlyuser->id}})">
+                                    <a class="btn2 btn-red mb-1 py-2" wire:click="$emit('delethis',{{$only->id}})">
                                         <i class="fas fa-trash-alt"></i>
                                     </a>
+                                    @if ($only->estado=='Pendiente')
+                                    <a class="btn2 btn-green mb-1 py-2"
+                                        wire:click="$emit('cambiarestado',{{$only->id}})">
+                                        <i class="fas fa-toggle-on"></i>
+                                    </a>
+                                    @else
+                                    <a class="btn2 btn-green mb-1 py-2"
+                                        wire:click="$emit('cambiarestado',{{$only->id}})">
+                                        <i class="fas fa-toggle-off"></i>
+                                    </a>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach
@@ -90,9 +93,9 @@
             </div>
         </div>
     </div>
-    @if ($users->hasPages())
+    @if ($comandas->hasPages())
     <div class="px-6 py-3">
-        {{ $users->links() }}
+        {{ $comandas->links() }}
     </div>
     @endif
     @else
@@ -100,12 +103,12 @@
         No existe ningún registro coincidente
     </div>
     @endif
-    {{-- @include('livewire.admin.producto.modaleditarproducto') --}}
+    @include('livewire.admin.comanda.modaleditar')
     <script>
         livewire.on('delethis', deletid => {
             Swal.fire({
                 title: 'Estás seguro?',
-                text: "¡Está por eliminar este Usuario!",
+                text: "¡Está por eliminar esta comanda!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -116,7 +119,29 @@
                     @this.call('delet', deletid)
                     Swal.fire(
                         'Éxito!',
-                        'Usuario Eliminado.',
+                        'Comanda Eliminada.',
+                        'success'
+                    )
+                }
+            })
+        });
+    </script>
+    <script>
+        livewire.on('cambiarestado', changeid => {
+            Swal.fire({
+                title: 'Estás seguro?',
+                text: "¡Está por confirmar el pago!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '¡Sí, Confirmar!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    @this.call('cambiarestado', changeid)
+                    Swal.fire(
+                        'Éxito!',
+                        'Pago realizado.',
                         'success'
                     )
                 }

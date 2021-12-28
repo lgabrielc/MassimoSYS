@@ -263,6 +263,13 @@ return [
             'can'  => 'admin.users',
 
         ],
+        [
+            'text' => 'Comandas',
+            'url'  => 'admin/comandas',
+            // 'route'  => 'admin.productos.index',
+            'icon' => 'fas fa-fw fa-user',
+            'can'  => 'admin.comandas',
+        ],
         // [
         //     'text' => 'change_password',
         //     'url'  => 'admin/settings',
